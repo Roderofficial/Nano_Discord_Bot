@@ -5,6 +5,7 @@ import mysql.connector
 import random, string
 from datetime import datetime
 from addons.setting_download import download_settings
+#todo: doubled messages
 
 
 class ban_c(commands.Cog):

@@ -90,6 +90,12 @@ class settings_configuration(commands.Cog):
                             inline=False)
             await ctx.send(embed=embed)
 
+    @settings.command(name="kick")
+    async def kick(self, ctx, variable = None, *value):
+        #todo: kick settings
+        await ctx.channel.send("Info about kick settings")
+        pass
+
     #not permissions error
     @settings.error
     async def settings_error(self, ctx, error):

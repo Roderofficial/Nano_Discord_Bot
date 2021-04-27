@@ -41,11 +41,15 @@ class kick_c(commands.Cog):
                 await message.channel.send(embed=embed)
 
                 # private embed
-                embed = discord.Embed(title="Zostałeś wyrzucony z serwera: " + str(member.guild.name),
-                                      description="Przez: " + kto_zbanowal + " \nPowód: **" + str(reason) + "**",
-                                      color=0xff0000)
-                embed.set_thumbnail(url=member.guild.icon_url)
-                await member.send(embed=embed)
+                try:
+                    if settings_data['private_message'] == 1:
+                        embed = discord.Embed(title="Zostałeś wyrzucony z serwera: " + str(member.guild.name),
+                                              description="Przez: " + kto_zbanowal + " \nPowód: **" + str(reason) + "**",
+                                              color=0xff0000)
+                        embed.set_thumbnail(url=member.guild.icon_url)
+                        await member.send(embed=embed)
+                except Exception:
+                    None
 
                 # kick
                 await member.kick(reason=reason)

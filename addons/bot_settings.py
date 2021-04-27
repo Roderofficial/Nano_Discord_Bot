@@ -54,6 +54,8 @@ class settings_configuration(commands.Cog):
                 print(value)
                 update_settings(ctx.guild.id, "welcome_message", variable, value)
                 await self.successful_embed(ctx,f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+            else:
+                await self.error_embed(ctx)
         # channel
         elif variable == "channel_id":
             #pobranie zmiennych
@@ -92,9 +94,45 @@ class settings_configuration(commands.Cog):
 
     @settings.command(name="kick")
     async def kick(self, ctx, variable = None, *value):
+        print("Kick edit")
         #todo: kick settings
-        await ctx.channel.send("Info about kick settings")
-        pass
+        #enable kick
+        if variable == "enable":
+            try:
+                value = int(value[0])
+                if value == 0 or value == 1:
+                    update_settings(ctx.guild.id, "kick", variable, value)
+                    await self.successful_embed(ctx, f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+                else:
+                    await self.error_embed(ctx)
+            except:
+                print(f"Error:")
+                await self.error_embed(ctx)
+                pass
+
+        #private message
+        elif variable == "private_message":
+            try:
+                value = int(value[0])
+                if value == 0 or value == 1:
+                    update_settings(ctx.guild.id, "kick", variable, value)
+                    await self.successful_embed(ctx, f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+                else:
+                    await self.error_embed(ctx)
+            except Exception:
+                await self.error_embed(ctx)
+
+
+
+        #send info
+        elif variable == None:
+            embed = discord.Embed(title="Ustawienia modułu: kick", description="Alias dla zaawansowanych: ||>s kick||",
+                                  color=0x00b3ff)
+            embed.add_field(name="Włącz/Wyłącz", value=">settings kick enable 0/1", inline=False)
+            embed.add_field(name="Prywatna wiadomość do użytkownika po wyrzuceniu",
+                            value=">settings kick private_message 0/1", inline=True)
+            embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Uprawnienie: kick")
+            await ctx.channel.send(embed=embed)
 
     #not permissions error
     @settings.error
@@ -109,7 +147,7 @@ class settings_configuration(commands.Cog):
         await ctx.channel.send(embed=embed)
 
     #error embed
-    async def error_embed(self, ctx, embed_message):
+    async def error_embed(self, ctx, embed_message = "Wartość nie jest poprawna"):
         embed = discord.Embed(color=0xff0000)
         embed.add_field(name="❌ Błąd!", value=f"{embed_message}", inline=False)
         await ctx.channel.send(embed=embed)

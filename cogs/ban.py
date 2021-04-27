@@ -19,11 +19,18 @@ class ban_c(commands.Cog):
         self._last_member = None
 
     def member_banlist_add(self, cog, guild_id, member_id, reason):
+        """
+        :param cog: Auto, empty
+        :param guild_id: Discord guild id
+        :param member_id: Discord member id
+        :param reason: Ban reason
+        :return: Ban appeal code
+        """
         guild_id = str(guild_id)
         member_id = str(member_id)
         reason = str(reason)
         link = ''.join(
-            random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(60))
+            random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(20))
         mydb = mysql.connector.connect(
             host=settings.db_adres,
             user=settings.db_login,
@@ -36,7 +43,7 @@ class ban_c(commands.Cog):
         val = (guild_id, member_id, reason, link)
         mycursor.execute(sql, val)
         mydb.commit()
-        return f"http://localhost/ban_appeal/{link}"
+        return str(link)
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -76,8 +83,11 @@ class ban_c(commands.Cog):
                                               description="Przez: " + kto_zbanowal + " \nPowód: **" + str(
                                                   reason) + "**",
                                               color=0xff0000)
-                        if settings_data['ban_appeal'] == 1:
-                            embed.add_field(name="Odwołaj się od bana", value=f"[Kliknij Tutaj]({link})", inline=False)
+                        try:
+                            if settings_data['ban_appeal'] == 1:
+                                embed.add_field(name="Odwołaj się od bana", value=f"```!odwolaj {link} [Treść twojego odwołania]```", inline=False)
+                        except:
+                            None
                         embed.set_thumbnail(url=member.guild.icon_url)
                         await member.send(embed=embed)
                 except Exception:

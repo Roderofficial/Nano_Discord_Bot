@@ -28,3 +28,5 @@ class messagelog(commands.Cog):
             val = (message.guild.id, message.channel.id, message.author.id, message.id, message.content)
             mycursor.execute(sql, val)
             mydb.commit()
+            mycursor.close()
+            mydb.close()

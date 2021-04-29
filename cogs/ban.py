@@ -43,6 +43,8 @@ class ban_c(commands.Cog):
         val = (guild_id, member_id, reason, link)
         mycursor.execute(sql, val)
         mydb.commit()
+        mycursor.close()
+        mydb.close()
         return str(link)
 
     @commands.command()
@@ -133,6 +135,8 @@ class ban_c(commands.Cog):
         val = (guild_id, member_id)
         mycursor.execute(sql, val)
         mydb.commit()
+        mycursor.close()
+        mydb.close()
 
     # TODO: COMMAND UNBAN
     """

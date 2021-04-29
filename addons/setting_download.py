@@ -30,7 +30,8 @@ def download_settings(gid, module_name):
         data = json.loads(a)
         return data
 
-
+    mycursor.close()
+    mydb.close()
 def update_settings(gid, module_name, variable, value):
     """
     :param gid: Discord guild id
@@ -85,4 +86,5 @@ def update_settings(gid, module_name, variable, value):
         mycursor.execute(sql, (encoded_json, gid, module_name))
         mydb.commit()
 
-
+    mycursor.close()
+    mydb.close()

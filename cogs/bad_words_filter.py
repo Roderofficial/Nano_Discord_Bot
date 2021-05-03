@@ -12,6 +12,7 @@ class bad_words(commands.Cog):
         self._last_member = None
 
     @commands.Cog.listener()
+    @commands.guild_only()
     async def on_message(self, message):
         if not message.author.bot:
             if not message.author.guild_permissions.manage_messages:
@@ -41,7 +42,7 @@ class bad_words(commands.Cog):
                             embed.add_field(name="Ostrzeżenie",
                                             value=str(message.author) + " twoja wypowiedź zawiera zakazane frazy.",
                                             inline=False)
-                            await message.channel.send(embed=embed)
+                            await message.channel.send(embed=embed, delete_after=10.0)
                             return 0
 
     @commands.Command

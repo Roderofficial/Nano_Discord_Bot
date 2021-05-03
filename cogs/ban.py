@@ -30,7 +30,7 @@ class ban_c(commands.Cog):
         member_id = str(member_id)
         reason = str(reason)
         link = ''.join(
-            random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(20))
+            random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(8))
         mydb = mysql.connector.connect(
             host=settings.db_adres,
             user=settings.db_login,
@@ -46,6 +46,7 @@ class ban_c(commands.Cog):
         mycursor.close()
         mydb.close()
         return str(link)
+
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -87,7 +88,7 @@ class ban_c(commands.Cog):
                                               color=0xff0000)
                         try:
                             if settings_data['ban_appeal'] == 1:
-                                embed.add_field(name="Odwołaj się od bana", value=f"```!odwolaj {link} [Treść twojego odwołania]```", inline=False)
+                                embed.add_field(name="Odwołaj się od bana", value=f"```>a {link} [Treść twojego odwołania]```", inline=False)
                         except:
                             None
                         embed.set_thumbnail(url=member.guild.icon_url)
@@ -102,21 +103,33 @@ class ban_c(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, member):
-        logs = await guild.audit_logs(limit=1, action=discord.AuditLogAction.ban).flatten()
-        settings_data = download_settings(guild.id, "ban")
-        logs = logs[0]
-        if logs.target == member:
-            try:
-                if settings_data['private_message'] == 1:
-                    # private embed
-                    embed = discord.Embed(title=f"Zostałeś zbanowany na serwerze: {guild.name}",
-                                          description=f"Przez: {logs.user} \nPowód: ** {logs.reason}**",
-                                          color=0xff0000)
-                    embed.set_thumbnail(url=guild.icon_url)
-                    await member.send(embed=embed)
-            except Exception:
-                pass
+        if not member_banlist_check(guild.id, member.id):
 
+            logs = await guild.audit_logs(limit=1, action=discord.AuditLogAction.ban).flatten()
+            logs = logs[0]
+            print(logs.reason)
+            link = self.member_banlist_add(self, guild.id, member.id, str(logs.reason))
+            settings_data = download_settings(guild.id, "ban")
+
+            if logs.target == member:
+                try:
+                    if settings_data['private_message'] == 1:
+                        # private embed
+                        embed = discord.Embed(title=f"Zostałeś zbanowany na serwerze: {guild.name}",
+                                              description=f"Przez: {logs.user} \nPowód: ** {logs.reason}**",
+                                              color=0xff0000)
+                        try:
+                            if settings_data['ban_appeal'] == 1:
+                                embed.add_field(name="Odwołaj się od bana", value=f"```>a {link} [Treść twojego odwołania]```", inline=False)
+                        except:
+                            None
+                        embed.set_thumbnail(url=guild.icon_url)
+                        await member.send(embed=embed)
+                except Exception:
+                    pass
+    """ADNOTACJA:
+    Jak pozbyłem się duplikacji wiadomości? Wystarczy, że przed on member ban użytkownik sprawdzi czy już jest ktoś zbanowany, jeśli tak to nie wysyła wiadomości ani nie dodaje
+    """
     @commands.Cog.listener()
     async def on_member_unban(self, guild, member):
         # print("User unban")
@@ -138,6 +151,16 @@ class ban_c(commands.Cog):
         mycursor.close()
         mydb.close()
 
+    """
+    #################
+    ###    BAN    ###
+    #################
+    """
+
+    @commands.command(name="a")
+    async def ban_appeal(self,ctx):
+        print("Appeal")
+
     # TODO: COMMAND UNBAN
     """
     
@@ -154,7 +177,29 @@ class ban_c(commands.Cog):
                 await ctx.guild.unban(user)
                 """
 
+def member_banlist_check(guild_id, member_id):
+
+    mydb = mysql.connector.connect(
+        host=settings.db_adres,
+        user=settings.db_login,
+        password=settings.db_password,
+        database=settings.db_base
+    )
+    mycursor = mydb.cursor()
+
+    sql = "SELECT * FROM `ban_list` WHERE dc_guild_id = %s AND dc_member_id = %s"
+    val = (guild_id, member_id)
+    mycursor.execute(sql, val)
+    myresult = mycursor.fetchone()
+    mycursor.close()
+    mydb.close()
+    if myresult is None:
+        return False
+    else:
+        return True
+
+
 
 # setup
-def setup(self):
+def setup():
     print("Moduł cogs.ban załadowany!")

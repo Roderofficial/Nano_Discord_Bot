@@ -51,7 +51,24 @@ class licence(commands.Cog):
             embed.set_footer(text=f"Id licencji: {id}")
         await ctx.channel.send(embed=embed)
 
-
+def premium_licence_check(gid):
+    mydb = mysql.connector.connect(
+        host=settings.db_adres,
+        user=settings.db_login,
+        password=settings.db_password,
+        database=settings.db_base
+    )
+    mycursor = mydb.cursor()
+    sql = "SELECT * FROM licences WHERE guild_id = %s"
+    mycursor.execute(sql, (gid,))
+    myresult = mycursor.fetchone()
+    mycursor.close()
+    mydb.close()
+    # print(myresult)
+    if myresult is None:
+        return False
+    else:
+        return True
 
 # setup
 def setup(self):

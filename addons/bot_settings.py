@@ -4,7 +4,8 @@ import discord
 from discord.ext import commands
 
 from addons.setting_download import *
-
+from cogs.ban import member_banlist_check
+from cogs.licence import premium_licence_check
 
 class settings_configuration(commands.Cog):
     def __init__(self, bot):
@@ -191,18 +192,22 @@ class settings_configuration(commands.Cog):
             except Exception:
                 await self.error_embed(ctx)
 
-        # private message
+        # ban appeal
         elif variable == "ban_appeal":
-            try:
-                value = int(value[0])
-                if value == 0 or value == 1:
-                    update_settings(ctx.guild.id, "ban", variable, value)
-                    await self.successful_embed(ctx,
-                                                f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
-                else:
+            if(premium_licence_check(ctx.guild.id)):
+                try:
+                    value = int(value[0])
+                    if value == 0 or value == 1:
+                        update_settings(ctx.guild.id, "ban", variable, value)
+                        await self.successful_embed(ctx,
+                                                    f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+                    else:
+                        await self.error_embed(ctx)
+                except Exception:
                     await self.error_embed(ctx)
-            except Exception:
-                await self.error_embed(ctx)
+            else:
+                await self.error_embed(ctx,"Funkcja, którą próbujesz konfigurować jest jedynie dla wersji **premium**")
+
 
 
 
@@ -214,7 +219,7 @@ class settings_configuration(commands.Cog):
             embed.add_field(name="Włącz/Wyłącz", value=">settings ban enable 0/1", inline=False)
             embed.add_field(name="Prywatna wiadomość do użytkownika po wyrzuceniu",
                             value=">settings ban private_message 0/1", inline=True)
-            embed.add_field(name="Apelacje od bana Włączone/Wyłączone", value=">settings ban ban_appeal 0/1",
+            embed.add_field(name="★ Apelacje od bana Włączone/Wyłączone", value=">settings ban ban_appeal 0/1",
                             inline=False)
             embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Uprawnienie: ban")
             await ctx.channel.send(embed=embed)

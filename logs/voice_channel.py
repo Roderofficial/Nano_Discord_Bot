@@ -50,7 +50,7 @@ class voice_channel_logs(commands.Cog):
             print(database_config['enable'])
             print(database_config['leave_message'])"""
             #leave channel
-            if not (before.channel is None and after.channel is not None):
+            if (not (before.channel is None and after.channel is not None)) and (before.channel != after.channel):
                 print("LEAVE")
                 if database_config['enable'] == 1 and database_config['leave_message'] == 1:
                     embed = discord.Embed(color=0xc20000)
@@ -64,7 +64,7 @@ class voice_channel_logs(commands.Cog):
 
 
             #join channel
-            if (before.channel is None and after.channel is not None) or (before.channel is not None and after.channel is not None):
+            if ((before.channel is None and after.channel is not None) or (before.channel is not None and after.channel is not None)) and (before.channel != after.channel):
                 print("JOIN")
                 #embed join
                 if database_config['enable'] == 1 and database_config['join_message'] == 1:

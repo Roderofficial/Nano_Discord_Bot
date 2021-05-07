@@ -11,6 +11,7 @@ class clear(commands.Cog):
 
     #clear command
     @commands.command()
+    @commands.has_permissions(manage_messages=True)
     async def clear(self,message, amount=5):
 
         # generowanie czasu
@@ -25,6 +26,8 @@ class clear(commands.Cog):
         embed = discord.Embed(description="Pomyślnie usunięto " + str(amount) + " wiadomości!", color=0x009dff)
         embed.set_footer(text="Czas: " + str(czas))
         await message.channel.send(embed=embed)
+
+
 
 
 #setup

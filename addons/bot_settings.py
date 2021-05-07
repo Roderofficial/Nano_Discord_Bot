@@ -6,6 +6,8 @@ from discord.ext import commands
 from addons.setting_download import *
 from cogs.ban import member_banlist_check
 from cogs.licence import premium_licence_check
+from cogs.prefix import get_prefix
+from cogs.bad_words_filter import get_bad_words_list_string,check_word_in_database,add_bad_world,remove_bad_world
 
 class settings_configuration(commands.Cog):
     def __init__(self, bot):
@@ -66,7 +68,11 @@ class settings_configuration(commands.Cog):
         elif variable == "channel_id":
             # pobranie zmiennych
             value = value[0]
-            channel_id = re.search(r'\d+', value).group()
+            try:
+                channel_id = re.search(r'\d+', value).group()
+            except:
+                await self.error_embed(ctx)
+                return 0
             # print(channel_id)
 
             # utworzenie listy kanałów na serwerze
@@ -88,15 +94,15 @@ class settings_configuration(commands.Cog):
             # embed information for none
             embed = discord.Embed(title="Ustawienia modułu: welcome_messages",
                                   description="Alias (dla zaawansowanych): ||**>s wm**||", color=0x00b3ff)
-            embed.add_field(name="Włącz/Wyłącz", value=">settings welcome_message 1/0", inline=False)
+            embed.add_field(name="Włącz/Wyłącz", value=f"{get_prefix(self,ctx)}settings welcome_message 1/0", inline=False)
             embed.add_field(name="Treść powitania",
-                            value=">settings welcome_message message Witaj na serwerze $mention$ ```Dozwolone znaczniki: \n$mention$ - oznacza użytkownika (ping) \n$member$ - wypisuje nick użytkownika z tagiem (Nano#1234) \n$nick$ - Wypisuje sam nick użytkownika (Nano)```",
+                            value=f"{get_prefix(self,ctx)}settings welcome_message message Witaj na serwerze $mention$ ```Dozwolone znaczniki: \n$mention$ - oznacza użytkownika (ping) \n$member$ - wypisuje nick użytkownika z tagiem (Nano#1234) \n$nick$ - Wypisuje sam nick użytkownika (Nano)```",
                             inline=False)
             embed.add_field(name="Kolor powiadomienia",
-                            value=">settings welcome_message color *#ff9900* \n ```Bot przyjmuje tylko pełny kolor w HEX```",
+                            value=f"{get_prefix(self,ctx)}settings welcome_message color *#ff9900* \n ```Bot przyjmuje tylko pełny kolor w HEX```",
                             inline=False)
             embed.add_field(name="Kanał powiadomień",
-                            value="settings welcome_message channel_id #powitania ```Można podać ID kanału jak również go oznaczyć```",
+                            value=f"{get_prefix(self,ctx)}settings welcome_message channel_id #powitania ```Można podać ID kanału jak również go oznaczyć```",
                             inline=False)
             await ctx.send(embed=embed)
         else:
@@ -146,9 +152,9 @@ class settings_configuration(commands.Cog):
         elif variable == None:
             embed = discord.Embed(title="Ustawienia modułu: kick", description="Alias dla zaawansowanych: ||>s kick||",
                                   color=0x00b3ff)
-            embed.add_field(name="Włącz/Wyłącz", value=">settings kick enable 0/1", inline=False)
+            embed.add_field(name="Włącz/Wyłącz", value=f"{get_prefix(self,ctx)}settings kick enable 0/1", inline=False)
             embed.add_field(name="Prywatna wiadomość do użytkownika po wyrzuceniu",
-                            value=">settings kick private_message 0/1", inline=True)
+                            value=f"{get_prefix(self,ctx)}settings kick private_message 0/1", inline=True)
             embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Uprawnienie: kick")
             await ctx.channel.send(embed=embed)
         else:
@@ -216,16 +222,188 @@ class settings_configuration(commands.Cog):
         elif variable == None:
             embed = discord.Embed(title="Ustawienia modułu: ban", description="Alias dla zaawansowanych: ||>s ban||",
                                   color=0x00b3ff)
-            embed.add_field(name="Włącz/Wyłącz", value=">settings ban enable 0/1", inline=False)
+            embed.add_field(name="Włącz/Wyłącz", value=f"{get_prefix(self,ctx)}settings ban enable 0/1", inline=False)
             embed.add_field(name="Prywatna wiadomość do użytkownika po wyrzuceniu",
-                            value=">settings ban private_message 0/1", inline=True)
-            embed.add_field(name="★ Apelacje od bana Włączone/Wyłączone", value=">settings ban ban_appeal 0/1",
+                            value=f"{get_prefix(self,ctx)}settings ban private_message 0/1", inline=True)
+            embed.add_field(name="★ Apelacje od bana Włączone/Wyłączone", value=f"{get_prefix(self,ctx)}settings ban ban_appeal 0/1",
                             inline=False)
             embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Uprawnienie: ban")
             await ctx.channel.send(embed=embed)
         else:
             self.error_embed(ctx, "Podane polecenie nie istnieje")
 
+
+
+    #|---------GLOBAL--------|
+    @settings.command(name="global")
+    async def global_settings(self, ctx, variable=None, *value):
+        print("global edit")
+        # enable kick
+        if variable == "prefix":
+            value = value[0]
+            try:
+                if value is not None:
+                    update_settings(ctx.guild.id, "global", variable, value)
+                    await self.successful_embed(ctx,
+                                                f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+                else:
+                    await self.error_embed(ctx)
+            except:
+                print(f"Error:")
+                await self.error_embed(ctx)
+                pass
+
+
+        # send info
+        elif variable == None:
+            embed = discord.Embed(title="Ustawienia modułu: ban", description="Alias dla zaawansowanych: ||>s ban||",
+                                  color=0x00b3ff)
+            embed.add_field(name="Prefix", value=">settings global prefix >", inline=False)
+
+            await ctx.channel.send(embed=embed)
+        else:
+            self.error_embed(ctx, "Podane polecenie nie istnieje")
+
+
+    #
+    # VOICE CHANNEL LOGS
+    #
+    #settings voice channel logs
+    @settings.command(name="jll")
+    async def jllogs(self, ctx, variable=None, *value):
+        print("jllogs edit")
+        # enable voice channel logs
+        if variable == "enable":
+            try:
+                value = int(value[0])
+                if value == 0 or value == 1:
+                    update_settings(ctx.guild.id, "jl_logs", variable, value)
+                    await self.successful_embed(ctx,
+                                                f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+                else:
+                    await self.error_embed(ctx)
+            except:
+                print(f"Error:")
+                await self.error_embed(ctx)
+                pass
+
+        # join message
+        elif variable == "join_message":
+            try:
+                value = int(value[0])
+                if value == 0 or value == 1:
+                    update_settings(ctx.guild.id, "jl_logs", variable, value)
+                    await self.successful_embed(ctx,
+                                                f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+                else:
+                    await self.error_embed(ctx)
+            except Exception:
+                await self.error_embed(ctx)
+
+        # leave message
+        elif variable == "leave_message":
+            try:
+                value = int(value[0])
+                if value == 0 or value == 1:
+                    update_settings(ctx.guild.id, "jl_logs", variable, value)
+                    await self.successful_embed(ctx,
+                                                f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+                else:
+                    await self.error_embed(ctx)
+            except Exception:
+                await self.error_embed(ctx)
+
+        #channel id logs
+        elif variable == "channel_id":
+            # pobranie zmiennych
+            value = value[0]
+            try:
+                channel_id = re.search(r'\d+', value).group()
+            except:
+                await self.error_embed(ctx)
+                return 0
+            # print(channel_id)
+
+            # utworzenie listy kanałów na serwerze
+            text_channel_list = []
+            for channel in ctx.guild.channels:
+                if channel.type[0] == 'text':
+                    text_channel_list.append(str(channel.id))
+            # print(text_channel_list)
+
+            # Sprawdzenie czy podany kanał istnieje na tym serwerze
+            if channel_id in text_channel_list:
+                update_settings(ctx.guild.id, "jl_logs", variable, int(channel_id))
+                await self.successful_embed(ctx, f"Wartość **{variable}** została ustawiona pomyślnie na **{value}**")
+            else:
+                await self.error_embed(ctx, f"**Podany kanał nie znajduje się na tym serwerze.**")
+
+        # send info
+        elif variable == None:
+            embed = discord.Embed(title="Ustawienia modułu: ban", description="Alias dla zaawansowanych: ||>s ban||",
+                                  color=0x00b3ff)
+            embed.add_field(name="Włącz/Wyłącz", value=f"{get_prefix(self,ctx)}settings ban enable 0/1", inline=False)
+            embed.add_field(name="Prywatna wiadomość do użytkownika po wyrzuceniu",
+                            value=f"{get_prefix(self,ctx)}settings ban private_message 0/1", inline=True)
+            embed.add_field(name="★ Apelacje od bana Włączone/Wyłączone", value=f"{get_prefix(self,ctx)}settings ban ban_appeal 0/1",
+                            inline=False)
+            embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Uprawnienie: ban")
+            await ctx.channel.send(embed=embed)
+        else:
+            self.error_embed(ctx, "Podane polecenie nie istnieje")
+
+    @settings.command(name="message_filter", aliases=['mf'])
+    async def bw_filter(self, ctx, variable=None, *value):
+        print("bw edit")
+        # get list of words
+        if variable == "list":
+            embed = discord.Embed(color=0xe7383d)
+            embed.add_field(name="Lista filtrowanych słów", value=f"```{get_bad_words_list_string(ctx.guild.id)}```", inline=False)
+            await ctx.channel.send(embed=embed)
+
+
+        # add word
+        elif variable == "add":
+            try:
+                value = " ".join(value[:])
+                if value is not None:
+                    if add_bad_world(ctx.guild.id,value):
+                        await self.successful_embed(ctx, f"Pomyślnie dodano frazę: ``{value}``")
+                    else:
+                        await self.error_embed(ctx, f"Dodanie frazy ``{value}`` zakończyło się niepowodzeniem, być może znajduje się już ona na liście.")
+
+                else:
+                    await self.error_embed(ctx)
+            except Exception:
+                await self.error_embed(ctx)
+
+        # remove word
+        elif variable == "remove":
+            try:
+                value = " ".join(value[:])
+                if value is not None:
+                    if remove_bad_world(ctx.guild.id,value):
+                        await self.successful_embed(ctx, f"Pomyślnie dodano frazę: ``{value}``")
+                    else:
+                        await self.error_embed(ctx, f"Nie udało się usunać frazy ``{value}``, być może nie ma jej na liście")
+
+
+            except Exception:
+                await self.error_embed(ctx)
+
+
+        elif variable == None:
+            embed = discord.Embed(title="Ustawienia modułu: message_filter", description="Alias dla zaawansowanych: ||>s mf||",
+                                  color=0x00b3ff)
+            embed.add_field(name="Lista fraz", value=f"{get_prefix(self,ctx)}settings mf list", inline=False)
+            embed.add_field(name="Dodanie frazy do listy",
+                            value=f"{get_prefix(self,ctx)}settings mf add text", inline=True)
+            embed.add_field(name="Usunięcie frazy z listy", value=f"{get_prefix(self,ctx)}settings mf remove text",
+                            inline=False)
+            embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Podczas sprawdzania pomijani są użytkownicy z uprawnieniem: zarządzanie wiadomościami.")
+            await ctx.channel.send(embed=embed)
+        else:
+            self.error_embed(ctx, "Podane polecenie nie istnieje")
     # not permissions error
     @settings.error
     async def settings_error(self, ctx, error):
@@ -253,6 +431,7 @@ class settings_configuration(commands.Cog):
         embed = discord.Embed(color=0xff0000)
         embed.add_field(name="❌ Błąd!", value=f"{embed_message}", inline=False)
         await ctx.channel.send(embed=embed)
+
 
 
 # setup

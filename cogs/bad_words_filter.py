@@ -107,7 +107,39 @@ def add_bad_world(gid, word):
     check = check_word_in_database(gid, word)
     if not check:
         print('Nie ma w bazie')
-
+        #insert to dabatase
+        mydb = mysql.connector.connect(
+            host=settings.db_adres,
+            user=settings.db_login,
+            password=settings.db_password,
+            database=settings.db_base
+        )
+        mycursor = mydb.cursor()
+        sql = "INSERT INTO `bad_words` (`dc_guild_id`, `content`) VALUES (%s, %s) "
+        mycursor.execute(sql, (gid, word))
+        mydb.commit()
         return True
     else:
         return False
+def get_bad_words_list_string(gid):
+    """
+    :param gid:
+    :return: string with list
+    """
+
+    # select do bazy
+    mydb = mysql.connector.connect(
+        host=settings.db_adres,
+        user=settings.db_login,
+        password=settings.db_password,
+        database=settings.db_base
+    )
+    mycursor = mydb.cursor()
+    sql = "SELECT content FROM bad_words WHERE dc_guild_id = %s"
+    mycursor.execute(sql, (gid,))
+    myresult = mycursor.fetchall()
+    return_string = ''
+    for a in myresult:
+        return_string = return_string + f'\n• {a[0]}'
+    return(return_string)
+

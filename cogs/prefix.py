@@ -27,6 +27,7 @@ def get_prefix(self, ctx):
     # Only allow custom prefixs in guild
     try:
         if data['prefix'] is not None:
+
             #print(data['prefix'])
             return data['prefix']
         else:

@@ -15,7 +15,7 @@ class settings_configuration(commands.Cog):
         self._last_member = None
 
     # main settings
-    @commands.group(aliases=['s'])
+    @commands.group(name="settings",aliases=['s'])
     @commands.has_permissions(administrator=True)
     async def settings(self, ctx):
         if ctx.invoked_subcommand is not None:
@@ -358,7 +358,7 @@ class settings_configuration(commands.Cog):
         # get list of words
         if variable == "list":
             embed = discord.Embed(color=0xe7383d)
-            embed.add_field(name="Lista filtrowanych słów", value=f"```{get_bad_words_list_string(ctx.guild.id)}```", inline=False)
+            embed.add_field(name="Lista filtrowanych fraz", value=f"```{get_bad_words_list_string(ctx.guild.id)}```", inline=False)
             await ctx.channel.send(embed=embed)
 
 
@@ -383,14 +383,13 @@ class settings_configuration(commands.Cog):
                 value = " ".join(value[:])
                 if value is not None:
                     if remove_bad_world(ctx.guild.id,value):
-                        await self.successful_embed(ctx, f"Pomyślnie dodano frazę: ``{value}``")
+                        await self.successful_embed(ctx, f"Pomyślnie usinięto frazę: ``{value}``")
                     else:
                         await self.error_embed(ctx, f"Nie udało się usunać frazy ``{value}``, być może nie ma jej na liście")
 
 
             except Exception:
                 await self.error_embed(ctx)
-
 
         elif variable == None:
             embed = discord.Embed(title="Ustawienia modułu: message_filter", description="Alias dla zaawansowanych: ||>s mf||",

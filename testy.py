@@ -1,2 +1,2 @@
-from cogs.bad_words_filter import *
-print(get_bad_words_list_string(737070026955161731))
+from cogs.stats import *
+stats.get_and_update_record_online()

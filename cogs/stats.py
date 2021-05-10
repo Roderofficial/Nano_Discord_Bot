@@ -5,12 +5,62 @@ import settings
 from datetime import datetime
 from addons.setting_download import *
 import asyncio
-
+#todo: dodać najnowszego użytkownika
+#todo: dodać rekord online
 
 class stats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._last_member = None
+
+    async def get_and_update_record_online(self, gid, online):
+        #print(gid)
+        #print(online)
+
+        # select do bazy
+
+        gid = str(gid)
+        online = str(online)
+        #print('connect')
+        mydb = mysql.connector.connect(
+            host=settings.db_adres,
+            user=settings.db_login,
+            password=settings.db_password,
+            database=settings.db_base
+        )
+        mycursor = mydb.cursor()
+        sql = "SELECT record FROM `record_online` WHERE gid = %s"
+        mycursor.execute(sql, (gid,))
+        myresult = mycursor.fetchone()
+
+        #print(myresult)
+
+        #sprawdzenie czy warunek instnieje
+        if myresult is None:
+            #stworzenie pierwszego rekordu
+            gid = str(gid)
+            online = str(online)
+            #print('Is none')
+            sql = "INSERT INTO `record_online` (`gid`, `record`) VALUES (%s, %s) "
+            mycursor.execute(sql, (gid, online))
+            mydb.commit()
+            return online
+        else:
+            #konwersja do int
+
+            online = int(online)
+            count_from_database = int(myresult[0])
+            if online > count_from_database:
+                #zaktualizowanie nowego rekordu użytkowników
+                #print('else none')
+                sql = "UPDATE `record_online` SET `record` = %s WHERE `record_online`.`gid` = %s"
+                mycursor.execute(sql, (online, gid))
+                mydb.commit()
+                return online
+            else:
+                #zwrocenie rekordu z bazy który był większy
+                return count_from_database
+
 
     #member online count
     async def get_member_online(self, ctx, guild_id):
@@ -83,6 +133,12 @@ class stats(commands.Cog):
         new_name = f"{data['member_count_prefix']} {all_count} {data['member_count_suffix']}"
         await count_channel.edit(name=new_name)
 
+        #online status update
+        record_channel = self.bot.get_channel(data['member_record_channel_id'])
+        record_count = await self.get_and_update_record_online(guild_id, online_count)
+        new_name = f"{data['member_record_prefix']} {record_count} {data['member_record_suffix']}"
+        await record_channel.edit(name=new_name)
+
         print(f'Updated id: {guild_id}')
 
     async def update_all(self):
@@ -105,10 +161,10 @@ class stats(commands.Cog):
                     await self.update_status_server(int(a[0]))
             await asyncio.sleep(60)
 
-
     @commands.command()
-    async def tc(self,ctx):
-        await self.update_all()
+    async def tca(self,ctx, count):
+        print('record:')
+        print(self.get_and_update_record_online(ctx.guild.id, count))
 
     @commands.Cog.listener()
     async def on_ready(self):

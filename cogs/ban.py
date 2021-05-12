@@ -51,7 +51,11 @@ class ban_c(commands.Cog):
     @commands.command()
     @commands.has_permissions(ban_members=True)
     async def ban(self, message, member: discord.Member, *reason):
-        reason = " ".join(reason[:])
+        # reason chceck
+        if len(reason[0]) == 0:
+            reason = "Brak"
+        else:
+            reason = " ".join(reason[:])
 
         # download settings
         settings_data = download_settings(message.guild.id, "ban")

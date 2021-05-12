@@ -106,7 +106,7 @@ class settings_configuration(commands.Cog):
                             inline=False)
             await ctx.send(embed=embed)
         else:
-            self.error_embed(ctx, "Podane polecenie nie istnieje")
+            await self.error_embed(ctx, "Podane polecenie nie istnieje")
 
     """
     #################
@@ -158,7 +158,7 @@ class settings_configuration(commands.Cog):
             embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Uprawnienie: kick")
             await ctx.channel.send(embed=embed)
         else:
-            self.error_embed(ctx, "Podane polecenie nie istnieje")
+            await self.error_embed(ctx, "Podane polecenie nie istnieje")
 
     """
     #################
@@ -230,7 +230,7 @@ class settings_configuration(commands.Cog):
             embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Uprawnienie: ban")
             await ctx.channel.send(embed=embed)
         else:
-            self.error_embed(ctx, "Podane polecenie nie istnieje")
+            await self.error_embed(ctx, "Podane polecenie nie istnieje")
 
 
 
@@ -262,7 +262,7 @@ class settings_configuration(commands.Cog):
 
             await ctx.channel.send(embed=embed)
         else:
-            self.error_embed(ctx, "Podane polecenie nie istnieje")
+            await self.error_embed(ctx, "Podane polecenie nie istnieje")
 
 
     #
@@ -350,7 +350,7 @@ class settings_configuration(commands.Cog):
             embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Uprawnienie: ban")
             await ctx.channel.send(embed=embed)
         else:
-            self.error_embed(ctx, "Podane polecenie nie istnieje")
+            await self.error_embed(ctx, "Podane polecenie nie istnieje")
 
     @settings.command(name="message_filter", aliases=['mf'])
     async def bw_filter(self, ctx, variable=None, *value):
@@ -402,7 +402,7 @@ class settings_configuration(commands.Cog):
             embed.set_footer(text="Ten moduł korzysta z uprawnień Discord. Podczas sprawdzania pomijani są użytkownicy z uprawnieniem: zarządzanie wiadomościami.")
             await ctx.channel.send(embed=embed)
         else:
-            self.error_embed(ctx, "Podane polecenie nie istnieje")
+            await self.error_embed(ctx, "Podane polecenie nie istnieje")
     # not permissions error
     @settings.error
     async def settings_error(self, ctx, error):

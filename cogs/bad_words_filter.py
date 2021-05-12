@@ -143,3 +143,4 @@ def get_bad_words_list_string(gid):
         return_string = return_string + f'\n• {a[0]}'
     return(return_string)
 
+

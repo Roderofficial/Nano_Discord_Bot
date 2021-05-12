@@ -20,7 +20,11 @@ class kick_c(commands.Cog):
         #try check if enable
         try:
             if settings_data['enable'] == 1:
-                reason = " ".join(reason[:])
+                # reason chceck
+                if len(reason[0]) == 0:
+                    reason = "Brak"
+                else:
+                    reason = " ".join(reason[:])
 
                 # generowanie czasu
                 kto_zbanowal = str(message.author.display_name) + str('#') + str(message.author.discriminator)

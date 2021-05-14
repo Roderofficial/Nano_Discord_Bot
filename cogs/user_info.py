@@ -1,11 +1,7 @@
-from discord.ext import commands
-import mysql.connector
-import discord
-import settings
-from datetime import datetime
 import re
 
-
+import discord
+from discord.ext import commands
 
 
 class userinfo(commands.Cog):

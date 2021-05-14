@@ -1,8 +1,8 @@
-from discord.ext import commands
-import discord
-import settings
-import mysql.connector
 from datetime import datetime
+
+import discord
+from discord.ext import commands
+
 
 class clear(commands.Cog):
     def __init__(self, bot):

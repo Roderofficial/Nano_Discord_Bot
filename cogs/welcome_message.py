@@ -1,10 +1,7 @@
-from discord.ext import commands
 import discord
-import settings
-import mysql.connector
-from datetime import datetime
+from discord.ext import commands
+
 from addons.setting_download import download_settings
-import re
 
 
 class welcome_message(commands.Cog):

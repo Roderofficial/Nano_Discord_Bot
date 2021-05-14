@@ -1,11 +1,12 @@
-from discord.ext import commands
-import discord
-import settings
-import mysql.connector
-from addons.setting_download import *
 import asyncio
-from discord.utils import get
 from datetime import datetime, timedelta
+
+import discord
+import mysql.connector
+from discord.ext import commands
+from discord.utils import get
+
+from addons.setting_download import *
 
 
 class mute(commands.Cog):
@@ -158,37 +159,43 @@ class mute(commands.Cog):
                 return None
         except:
             None
+        try:
+            # add to database
+            await self.database_add(task_id, guild_id, member.id, datetime_end)
 
-        # add to database
-        await self.database_add(task_id, guild_id, member.id, datetime_end)
+            # embed message for channel
+            embed = discord.Embed(
+                description=f"Powód: {reason} \nCzas: {time} \nWygasa: {czas_czytelny} \nPrzez:{ctx.author}",
+                color=0xfff904)
+            embed.set_author(name=f"Wyciszono użytkownika: {member}", icon_url=member.avatar_url)
+            embed.set_footer(text=f"Mute id: {ctx.message.id}")
 
-        # embed message for channel
-        embed = discord.Embed(
-            description=f"Powód: {reason} \nCzas: {time} \nWygasa: {czas_czytelny} \nPrzez:{ctx.author}",
-            color=0xfff904)
-        embed.set_author(name=f"Wyciszono użytkownika: {member}", icon_url=member.avatar_url)
-        embed.set_footer(text=f"Mute id: {ctx.message.id}")
+            try:
+                # embed message for DM
+                dm = discord.Embed(description=f"Powód: {reason} \nCzas: {time} \nWygasa: {czas_czytelny} \nPrzez:{ctx.author}",
+                                   color=0xfff904)
+                dm.set_author(name=f"Wyciszono cię na serwerze: {ctx.guild}",
+                              icon_url=ctx.guild.icon_url)
+                dm.set_footer(text=f"Mute id: {ctx.message.id}")
+                await member.send(embed=dm)
+            except:
+                None
 
-        # embed message for DM
-        dm = discord.Embed(description=f"Powód: {reason} \nCzas: {time} \nWygasa: {czas_czytelny} \nPrzez:{ctx.author}",
-                           color=0xfff904)
-        dm.set_author(name=f"Wyciszono cię na serwerze: {ctx.guild}",
-                      icon_url=ctx.guild.icon_url)
-        dm.set_footer(text=f"Mute id: {ctx.message.id}")
+            # add mute role
+            await ctx.channel.send(embed=embed)
+            await self.give_role(member, ctx.guild)
 
-        # add mute role
-        await ctx.channel.send(embed=embed)
-        await member.send(embed=dm)
-        await self.give_role(member, ctx.guild)
+            # sleep
+            await asyncio.sleep(int(converted_time))
 
-        # sleep
-        await asyncio.sleep(int(converted_time))
-
-        # remove role
-        data = download_settings(guild_id, "mute")
-        role = get(ctx.guild.roles, id=data['role_id'])
-        await member.remove_roles(role)
-        await self.database_remove(task_id)
+            # remove role
+            data = download_settings(guild_id, "mute")
+            role = get(ctx.guild.roles, id=data['role_id'])
+            await member.remove_roles(role)
+            await self.database_remove(task_id)
+        except Exception as e:
+            await self.database_remove(task_id)
+            print(f"Temp task mute error: {e}")
 
     # aync recovery auto unmute
     async def recovery_unmute(self, task):
@@ -289,16 +296,19 @@ class mute(commands.Cog):
         embed.set_author(name=f"Wyciszono użytkownika: {member}", icon_url=member.avatar_url)
         embed.set_footer(text=f"Mute id: {ctx.message.id}")
 
-        # embed message for DM
-        dm = discord.Embed(description=f"Powód: {reason} \nCzas: ∞ \nWygasa: Nigdy \nPrzez:{ctx.author}",
-                           color=0xfff904)
-        dm.set_author(name=f"Wyciszono cię na serwerze: {ctx.guild}",
-                      icon_url=ctx.guild.icon_url)
-        dm.set_footer(text=f"Mute id: {ctx.message.id}")
+        try:
+            # embed message for DM
+            dm = discord.Embed(description=f"Powód: {reason} \nCzas: ∞ \nWygasa: Nigdy \nPrzez:{ctx.author}",
+                               color=0xfff904)
+            dm.set_author(name=f"Wyciszono cię na serwerze: {ctx.guild}",
+                          icon_url=ctx.guild.icon_url)
+            dm.set_footer(text=f"Mute id: {ctx.message.id}")
+            await member.send(embed=dm)
+        except:
+            None
 
         # add mute role
         await ctx.channel.send(embed=embed)
-        await member.send(embed=dm)
         await self.give_role(member, ctx.guild)
 
     @commands.command(name="unmute")

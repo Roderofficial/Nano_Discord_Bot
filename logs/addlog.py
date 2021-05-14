@@ -1,7 +1,8 @@
-from discord.ext import commands
 import mysql.connector
-import discord
+from discord.ext import commands
+
 import settings
+
 
 class messagelog(commands.Cog):
     def __init__(self, bot):

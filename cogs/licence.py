@@ -1,11 +1,9 @@
-from discord.ext import commands
 import discord
-import settings
 import mysql.connector
-from datetime import datetime
-from addons.setting_download import download_settings
-import re
-import datetime
+from discord.ext import commands
+
+import settings
+
 
 class licence(commands.Cog):
     def __init__(self, bot):

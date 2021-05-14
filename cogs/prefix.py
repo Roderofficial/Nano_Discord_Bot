@@ -1,8 +1,7 @@
-from addons.setting_download import *
 from discord.ext import commands
-import discord
-import settings
-import mysql.connector
+
+from addons.setting_download import *
+
 
 class prefix(commands.Cog):
     def __init__(self, bot):

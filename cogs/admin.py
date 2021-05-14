@@ -1,7 +1,6 @@
-from discord.ext import commands
 import discord
-import settings
-import mysql.connector
+from discord.ext import commands
+
 
 class admin(commands.Cog):
     def __init__(self, bot):

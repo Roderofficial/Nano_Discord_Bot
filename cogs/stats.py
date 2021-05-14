@@ -1,10 +1,9 @@
-from discord.ext import commands
-import mysql.connector
-import discord
-import settings
-from datetime import datetime
-from addons.setting_download import *
 import asyncio
+
+import mysql.connector
+from discord.ext import commands
+
+from addons.setting_download import *
 
 
 # todo: dodać najnowszego użytkownika

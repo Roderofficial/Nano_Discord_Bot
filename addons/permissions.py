@@ -5,6 +5,8 @@ import settings
 from datetime import datetime
 from addons.setting_download import *
 import asyncio
+def get_permission(member: discord.Member, guild : discord.Guild, permission : str):
+    return None
 
 
 class permissions(commands.Cog):
@@ -13,9 +15,9 @@ class permissions(commands.Cog):
         self._last_member = None
 
 
-    @commands.group(name="permissions",aliases=['per'])
+    @commands.group(name="permissions",aliases=['pex'])
     @commands.has_permissions(administrator=True)
-    async def settings(self, ctx):
+    async def permissions(self, ctx):
         if ctx.invoked_subcommand is not None:
             return
         print("Permission Command")

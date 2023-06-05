@@ -1,6 +1,6 @@
 # "NANO" - Discord Server Management Bot
 
-![Logo](https://i.ibb.co/pQWnkK2/bce20d4c9fc31a09156a2bd9b0934661.png)
+![Logo](https://i.ibb.co/pQWnkK2/bce20d4c9fc31a09156a2bd9b0934661.png)\
 Bot discordowy utworzony w celach edukacyjnych. Jego celem jest ułatwienie zarzadzania serwerem oraz przechowywanie historii wiadomości (tych usuniętych też) użytkowników wraz z załącznikami.
 
 
